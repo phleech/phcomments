@@ -1,0 +1,26 @@
+{
+    "name": "phleech/phcomments",
+    "description": "Retrieve video comments from PornHub",
+    "type": "library",
+    "require": {
+        "symfony/browser-kit": "^6.2",
+        "symfony/http-client": "^6.2",
+        "symfony/css-selector": "^6.2"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.8",
+        "phpunit/phpunit": "^10.1"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PHComments\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "phleech",
+            "email": "phleech@phleech.co.uk"
+        }
+    ]
+}
