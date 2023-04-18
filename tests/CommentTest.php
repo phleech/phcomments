@@ -77,17 +77,17 @@ final class CommentTest extends TestCase
         $this->assertEquals('', $serialized['votes']);
     }
 
-    public function testProvidedBodyAttributeIsUsedInGetBody(): void
+    public function testProvidedBodyAttributeIsUsed(): void
     {
         $body = 'This is a body';
         $comment = new Comment(body: $body);
-        $this->assertEquals($body, $comment->getBody());
+        $this->assertEquals($body, $comment->body);
     }
 
-    public function testProvidedAuthorAttributeIsUsedInGetBody(): void
+    public function testProvidedAuthorAttributeIsUsed(): void
     {
         $author = 'This is an author';
         $comment = new Comment(author: $author);
-        $this->assertEquals($author, $comment->getAuthor());
+        $this->assertEquals($author, $comment->author);
     }
 }

@@ -23,8 +23,7 @@ final class ParserTest extends TestCase
 
     public function testRandomVideoMethodReturnsSelf(): void
     {
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page);
+        $parser = new Parser();
         $this->assertInstanceOf(Parser::class, $parser->randomVideo());
     }
 
@@ -39,10 +38,8 @@ final class ParserTest extends TestCase
 
     public function testSetViewKeyMethodReturnsSelf(): void
     {
-        $viewKey = 'abcdef1234567890';
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page);
-        $this->assertInstanceOf(Parser::class, $parser->setViewKey($viewKey));
+        $parser = new Parser();
+        $this->assertInstanceOf(Parser::class, $parser->setViewKey(viewKey: 'abcdef1234567890'));
     }
 
     public function testParserCallsCorrectPageMethodWhenSetPageUrlMethodIsCalled(): void
@@ -56,34 +53,73 @@ final class ParserTest extends TestCase
 
     public function testSetPageUrlMethodReturnsSelf(): void
     {
-        $url = 'this/is/a/url.php?foo=bar';
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page);
-        $this->assertInstanceOf(Parser::class, $parser->setPageUrl($url));
+        $parser = new Parser();
+        $this->assertInstanceOf(Parser::class, $parser->setPageUrl(url: 'this/is/a/url.php?foo=bar'));
+    }
+
+    private function GeneratePageHtml(array $comments): string
+    {
+        $html = "<html><body><div id='cmtWrapper'><div id='cmtContent'>";
+
+        foreach ($comments as $comment) {
+            $html .= "
+                <!-- comment start -->
+                    <div class='commentBlock'>
+                        <div class='topCommentBlock'>
+                            <!-- body start -->
+                            <div class='commentMessage'>
+                                <span>".$comment->body."</span>
+                            </div>
+                            <!-- body end -->
+                            <!-- timestamp start -->
+                            <div class='userWrap'>
+                                <div class='date'>".$comment->timestamp."</div>
+                            </div>
+                            <!-- timestamp end -->
+                            <!-- author start -->
+                            <div class='userWrap'>
+                                <div class='usernameWrap'>
+                                    <a class='usernameLink'>".$comment->author."</a>
+                                </div>
+                            </div>
+                            <!-- author end -->
+                            <!-- votes start -->
+                            <div class='commentMessage'>
+                                <div class='actionButtonsBlock'>
+                                    <span class='voteTotal'>".$comment->votes.'</span>
+                                </div>
+                            </div>
+                            <!-- votes end -->
+                        </div>
+                    </div>
+                    <!-- comment end -->
+            ';
+        }
+
+        $html .= '</div></div></body></html>';
+
+        return $html;
+
     }
 
     public function testGetCommentsDefaultsToCallingParseFirst(): void
     {
         $comments = [
             new Comment(
-                body: 'This is a body',
-                timestamp: '1 Year Ago',
-                author: 'Billy Yenzen',
+                body: 'This is a comment body',
+                timestamp: '1 year ago',
+                author: 'Randy Starbucks',
                 votes: '12'
-            )
+            ),
         ];
 
-        $subCrawler = $this->createStub(Crawler::class);
-        $subCrawler->method('each')->willReturn($comments);
-
-        $crawler = $this->createStub(Crawler::class);
-        $crawler->method('filter')->willReturn($subCrawler);
+        $crawler = new Crawler($this->generatePageHtml($comments));
 
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
 
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page, httpBrowser: $httpBrowser);
+        $parser = new Parser(httpBrowser: $httpBrowser);
+        $parser->randomVideo();
 
         $this->assertEquals($comments, $parser->getComments());
     }
@@ -96,42 +132,18 @@ final class ParserTest extends TestCase
                 timestamp: '1 Year Ago',
                 author: 'Billy Yenzen',
                 votes: '12'
-            )
+            ),
         ];
 
-        $subCrawler = $this->createStub(Crawler::class);
-        $subCrawler->method('each')->willReturn($comments);
-
-        $crawler = $this->createStub(Crawler::class);
-        $crawler->method('filter')->willReturn($subCrawler);
+        $crawler = new Crawler($this->generatePageHtml($comments));
 
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
 
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page, httpBrowser: $httpBrowser);
+        $parser = new Parser(httpBrowser: $httpBrowser);
+        $parser->randomVideo();
 
         $this->assertEmpty($parser->getComments(parse: false));
-    }
-
-    public function testParseUsesCorrectDomLocationsToRetrieveComments(): void
-    {
-
-        $filteredPageCrawler = $this->createMock(Crawler::class);
-        $filteredPageCrawler->expects($this->once())->method('each');
-
-        $pageCrawler = $this->createMock(Crawler::class);
-        $pageCrawler->expects($this->once())
-                ->method('filter')
-                ->with('div#cmtWrapper > div#cmtContent > div.commentBlock > div.topCommentBlock')
-                ->willReturn($filteredPageCrawler);
-
-        $httpBrowser = $this->createMock(HttpBrowser::class);
-        $httpBrowser->expects($this->once())->method('request')->willReturn($pageCrawler);
-
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page, httpBrowser: $httpBrowser);
-        $parser->getComments();
     }
 
     public function testOnlyCommentsWithBodiesLargerThanMaxCommentBodyLengthAreRemoved(): void
@@ -150,27 +162,21 @@ final class ParserTest extends TestCase
             votes: '5'
         );
 
-        $subCrawler = $this->createStub(Crawler::class);
-        $subCrawler->method('each')->willReturn([$validComment, $invalidComment]);
-
-        $crawler = $this->createStub(Crawler::class);
-        $crawler->method('filter')->willReturn($subCrawler);
-
+        $crawler = new Crawler($this->generatePageHtml([$invalidComment, $validComment]));
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
 
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page, httpBrowser: $httpBrowser, maxCommentBodyLength: 25);
+        $parser = new Parser(httpBrowser: $httpBrowser, maxCommentBodyLength: 25);
+        $parser->randomVideo();
 
         $this->assertEquals([$validComment], $parser->getComments());
     }
 
     public function testDefaultMaxCommentBodyLengthIsUsedIfNoneIsSuppliedToParserConstructor(): void
     {
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page);
+        $parser = new Parser();
 
-        $this->assertEquals(200, $parser->getMaxCommentBodyLength());
+        $this->assertEquals(200, $parser->maxCommentBodyLength);
     }
 
     public function testOnlyCommentsWithAuthorsLargerThanMaxCommentAuthorLengthAreRemoved(): void
@@ -189,26 +195,20 @@ final class ParserTest extends TestCase
             votes: '5'
         );
 
-        $subCrawler = $this->createStub(Crawler::class);
-        $subCrawler->method('each')->willReturn([$validComment, $invalidComment]);
-
-        $crawler = $this->createStub(Crawler::class);
-        $crawler->method('filter')->willReturn($subCrawler);
-
+        $crawler = new Crawler($this->generatePageHtml([$invalidComment, $validComment]));
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
 
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page, httpBrowser: $httpBrowser, maxCommentAuthorLength: 15);
+        $parser = new Parser(httpBrowser: $httpBrowser, maxCommentAuthorLength: 15);
+        $parser->randomVideo();
 
         $this->assertEquals([$validComment], $parser->getComments());
     }
 
     public function testDefaultMaxCommentAuthorLengthIsUsedIfNoneIsSuppliedToParserConstructor(): void
     {
-        $page = $this->createMock(Page::class);
-        $parser = new Parser(page: $page);
+        $parser = new Parser();
 
-        $this->assertEquals(15, $parser->getMaxCommentAuthorLength());
+        $this->assertEquals(15, $parser->maxCommentAuthorLength);
     }
 }

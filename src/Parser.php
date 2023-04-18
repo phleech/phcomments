@@ -20,8 +20,8 @@ class Parser
     private array $comments = [];
 
     public function __construct(
-        private int $maxCommentBodyLength = Comment::DEFAULT_MAX_BODY_LENGTH,
-        private int $maxCommentAuthorLength = Comment::DEFAULT_MAX_AUTHOR_LENGTH,
+        public readonly int $maxCommentBodyLength = Comment::DEFAULT_MAX_BODY_LENGTH,
+        public readonly int $maxCommentAuthorLength = Comment::DEFAULT_MAX_AUTHOR_LENGTH,
         private HttpBrowser $httpBrowser = new HttpBrowser(),
         private Page $page = new Page()
     ) {
@@ -73,7 +73,7 @@ class Parser
     {
         $this->comments = array_values(
             array_filter($this->comments, function (Comment $comment) {
-                return strlen($comment->getBody()) <= $this->maxCommentBodyLength;
+                return strlen($comment->body) <= $this->maxCommentBodyLength;
             })
         );
     }
@@ -82,7 +82,7 @@ class Parser
     {
         $this->comments = array_values(
             array_filter($this->comments, function (Comment $comment) {
-                return strlen($comment->getAuthor()) <= $this->maxCommentAuthorLength;
+                return strlen($comment->author) <= $this->maxCommentAuthorLength;
             })
         );
     }
@@ -94,15 +94,5 @@ class Parser
         }
 
         return $this->comments;
-    }
-
-    public function getMaxCommentBodyLength(): int
-    {
-        return $this->maxCommentBodyLength;
-    }
-
-    public function getMaxCommentAuthorLength(): int
-    {
-        return $this->maxCommentAuthorLength;
     }
 }
