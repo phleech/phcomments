@@ -15,15 +15,15 @@ composer require phleech/phcomments
 ### Example
 
 ```php
-    use PHComments\Parser;
+use PHComments\Parser;
 
-    $parser = new Parser();
-    $comments = $parser->randomVideo()->getComments();
+$parser = new Parser();
+$comments = $parser->randomVideo()->getComments();
 
-    // $comments = [
-    //    {"body":"Identity theft is not a joke, Jim!","timestamp":"9 years ago","author":"TightyDwighty","votes":"4"},
-    //    {"body":"Name?","timestamp":"8 months ago","author":"RandyStarbucks","votes":"0"}
-    // ];
+// $comments = [
+//    {"body":"Identity theft is not a joke, Jim!","timestamp":"9 years ago","author":"TightyDwighty","votes":"4"},
+//    {"body":"Name?","timestamp":"8 months ago","author":"RandyStarbucks","votes":"0"}
+// ];
 ```
 
 ### Page selection
@@ -31,10 +31,10 @@ composer require phleech/phcomments
 The `Parser` class exposes a `setPageUrl()` method used to specify a PornHub resource to scrape.
 
 ```php
-    $parser->setPageUrl(url: 'view_video.php?viewkey=123456789');
+$parser->setPageUrl(url: 'view_video.php?viewkey=123456789');
 
-    // results in the following page being scraped:
-    // https://www.pornhub.com/view_video.php?viewkey=123456789.
+// results in the following page being scraped:
+// https://www.pornhub.com/view_video.php?viewkey=123456789.
 ``` 
 
 > The default base path of `https://www.pornhub.com` is used with all requests and must not be present in the URL used in `setPageUrl()`.
@@ -55,15 +55,15 @@ These restrictions are set in `Comment::DEFAULT_MAX_BODY_LENGTH` and `Comment::D
 If you wish to use a different value for either/both of these restrictions then simply provide them when creating the `Parser` class.
 
 ```php
-    use PHComments\Parser;
+use PHComments\Parser;
 
-    $parser = new Parser(
-        maxCommentBodyLength: 250
-        maxCommentAuthorLength: 100
-    );
+$parser = new Parser(
+    maxCommentBodyLength: 250
+    maxCommentAuthorLength: 100
+);
 
-    // results in any comments with a body greater than 250 chars
-    // or an author greater than 100 chars being removed.
+// results in any comments with a body greater than 250 chars
+// or an author greater than 100 chars being removed.
 ```
 
 > These parameters are public on the `Parser` class and can be retrieved.
