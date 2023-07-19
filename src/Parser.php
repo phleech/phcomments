@@ -2,6 +2,7 @@
 
 namespace PHComments;
 
+use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -16,6 +17,10 @@ class Parser
     private const AUTHOR_DOM_LOCATION = 'div.userWrap > div.usernameWrap .usernameLink';
 
     private const VOTES_DOM_LOCATION = 'div.commentMessage > div.actionButtonsBlock > span.voteTotal';
+
+    public const COOKIE_AGE_DISCLAIMER_NAME = 'accessAgeDisclaimerUK';
+
+    public const COOKIE_AGE_DISCLAIMER_VALUE = '1';
 
     private array $comments = [];
 
@@ -66,7 +71,16 @@ class Parser
 
     private function makeRequest(): Crawler
     {
+        $this->addCookiesToCookieJar();
+
         return $this->httpBrowser->request('GET', $this->page->getUrl());
+    }
+
+    private function addCookiesToCookieJar()
+    {
+        $this->httpBrowser->getCookieJar()->set(
+            new Cookie(self::COOKIE_AGE_DISCLAIMER_NAME, self::COOKIE_AGE_DISCLAIMER_VALUE, strtotime('+1 day'))
+        );
     }
 
     private function filterMaxCommentBodyLength(): void

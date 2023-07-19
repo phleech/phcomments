@@ -8,6 +8,8 @@ use PHComments\Comment;
 use PHComments\Page;
 use PHComments\Parser;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\BrowserKit\CookieJar;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -210,5 +212,21 @@ final class ParserTest extends TestCase
         $parser = new Parser();
 
         $this->assertEquals(15, $parser->maxCommentAuthorLength);
+    }
+
+    public function testAgeDisclaimerCookieIsPresentOnRequest(): void
+    {
+        $cookieJar = new CookieJar();
+        $httpBrowser = $this->createStub(HttpBrowser::class);
+        $httpBrowser->method('request')->willReturn(new Crawler());
+        $httpBrowser->method('getCookieJar')->willReturn($cookieJar);
+
+        $parser = new Parser(httpBrowser: $httpBrowser);
+        $parser->setPageUrl('');
+        $parser->getComments();
+
+        $cookie = $cookieJar->get(Parser::COOKIE_AGE_DISCLAIMER_NAME);
+        $this->assertInstanceOf(Cookie::class, $cookie);
+        $this->assertEquals(Parser::COOKIE_AGE_DISCLAIMER_VALUE, $cookie->getValue());
     }
 }
