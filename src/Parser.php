@@ -18,7 +18,7 @@ class Parser
 
     private const VOTES_DOM_LOCATION = 'div.commentMessage > div.actionButtonsBlock > span.voteTotal';
 
-    public const COOKIE_AGE_DISCLAIMER_NAME = 'accessAgeDisclaimerUK';
+    public const COOKIE_AGE_DISCLAIMER_NAME = 'accessAgeDisclaimerPH';
 
     public const COOKIE_AGE_DISCLAIMER_VALUE = '1';
 
