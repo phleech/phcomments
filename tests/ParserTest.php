@@ -115,7 +115,7 @@ final class ParserTest extends TestCase
             ),
         ];
 
-        $crawler = new Crawler($this->generatePageHtml($comments));
+        $crawler = new Crawler($this->generatePageHtml($comments), '/random');
 
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
@@ -137,7 +137,7 @@ final class ParserTest extends TestCase
             ),
         ];
 
-        $crawler = new Crawler($this->generatePageHtml($comments));
+        $crawler = new Crawler($this->generatePageHtml($comments), '/random');
 
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
@@ -164,7 +164,7 @@ final class ParserTest extends TestCase
             votes: '5'
         );
 
-        $crawler = new Crawler($this->generatePageHtml([$invalidComment, $validComment]));
+        $crawler = new Crawler($this->generatePageHtml([$invalidComment, $validComment]), '/random');
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
 
@@ -197,7 +197,7 @@ final class ParserTest extends TestCase
             votes: '5'
         );
 
-        $crawler = new Crawler($this->generatePageHtml([$invalidComment, $validComment]));
+        $crawler = new Crawler($this->generatePageHtml([$invalidComment, $validComment]), '/random');
         $httpBrowser = $this->createStub(HttpBrowser::class);
         $httpBrowser->method('request')->willReturn($crawler);
 
@@ -218,7 +218,7 @@ final class ParserTest extends TestCase
     {
         $cookieJar = new CookieJar();
         $httpBrowser = $this->createStub(HttpBrowser::class);
-        $httpBrowser->method('request')->willReturn(new Crawler());
+        $httpBrowser->method('request')->willReturn(new Crawler('', '/random'));
         $httpBrowser->method('getCookieJar')->willReturn($cookieJar);
 
         $parser = new Parser(httpBrowser: $httpBrowser);
@@ -228,5 +228,32 @@ final class ParserTest extends TestCase
         $cookie = $cookieJar->get(Parser::COOKIE_AGE_DISCLAIMER_NAME);
         $this->assertInstanceOf(Cookie::class, $cookie);
         $this->assertEquals(Parser::COOKIE_AGE_DISCLAIMER_VALUE, $cookie->getValue());
+    }
+
+    public function testEmojiesAreRemoved(): void
+    {
+        $originalComment = new Comment(
+            body: '👅',
+            timestamp: '13 Years Ago',
+            author: 'Gene Simmons',
+            votes: '500'
+        );
+
+        $validComment = new Comment(
+            body: ':tongue:',
+            timestamp: '13 Years Ago',
+            author: 'Gene Simmons',
+            votes: '500'
+        );
+
+        $crawler = new Crawler($this->generatePageHtml([$originalComment]), 'https://www.pornhub.com/someRandomVideo');
+        $httpBrowser = $this->createStub(HttpBrowser::class);
+        $httpBrowser->method('request')->willReturn($crawler);
+
+        $parser = new Parser(httpBrowser: $httpBrowser, maxCommentBodyLength: 25);
+        $parser->randomVideo();
+
+        $this->assertEquals([$validComment], $parser->getComments(translateEmojis: true));
+        $this->assertEquals('https://www.pornhub.com/someRandomVideo', $parser->getPageUrl());
     }
 }

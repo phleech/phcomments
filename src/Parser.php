@@ -5,6 +5,7 @@ namespace PHComments;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Intl\Transliterator\EmojiTransliterator;
 
 class Parser
 {
@@ -53,17 +54,31 @@ class Parser
         return $this;
     }
 
-    private function parse(): void
+    public function getPageUrl(): string
+    {
+        return $this->page->getUrl();
+    }
+
+    private function parse(bool $translateEmojis = false): void
     {
         $crawler = $this->makeRequest();
-        $this->comments = $crawler->filter(self::COMMENT_DOM_LOCATION)->each(function (Crawler $node) {
-            return new Comment(
-                body: $node->filter(self::BODY_DOM_LOCATION)->text(),
-                timestamp: $node->filter(self::TIMESTAMP_DOM_LOCATION)->text(),
-                author: $node->filter(self::AUTHOR_DOM_LOCATION)->text(),
-                votes: $node->filter(self::VOTES_DOM_LOCATION)->text()
-            );
-        });
+        $this->setPageUrl($crawler->getUri());
+        $transliterator = EmojiTransliterator::create('slack');
+
+        $this->comments = $crawler->filter(self::COMMENT_DOM_LOCATION)->each(
+            function (Crawler $node) use ($translateEmojis, $transliterator) {
+                $body = $node->filter(self::BODY_DOM_LOCATION)->text();
+                if ($translateEmojis) {
+                    $body = $transliterator->transliterate($body);
+                }
+                return new Comment(
+                    body: $body,
+                    timestamp: $node->filter(self::TIMESTAMP_DOM_LOCATION)->text(),
+                    author: $node->filter(self::AUTHOR_DOM_LOCATION)->text(),
+                    votes: $node->filter(self::VOTES_DOM_LOCATION)->text()
+                );
+            }
+        );
 
         $this->filterMaxCommentBodyLength();
         $this->filterMaxCommentAuthorLength();
@@ -101,10 +116,10 @@ class Parser
         );
     }
 
-    public function getComments(bool $parse = true): array
+    public function getComments(bool $parse = true, $translateEmojis = false): array
     {
         if ($parse) {
-            $this->parse();
+            $this->parse($translateEmojis);
         }
 
         return $this->comments;

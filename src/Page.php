@@ -46,6 +46,10 @@ class Page
 
     private function setUrl(string $url): void
     {
+        if (str_starts_with($url, $this->basePath)) {
+            $url = ltrim(str_replace($this->basePath, '',  $url), '/');
+        }
+
         $this->url = sprintf('%s/%s', $this->basePath, $url);
     }
 
