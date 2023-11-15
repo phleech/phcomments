@@ -6,7 +6,8 @@
         "php": ">=8.1",
         "symfony/browser-kit": "^6.2",
         "symfony/http-client": "^6.2",
-        "symfony/css-selector": "^6.2"
+        "symfony/css-selector": "^6.2",
+        "symfony/intl": "^6.3"
     },
     "require-dev": {
         "laravel/pint": "^1.8",
