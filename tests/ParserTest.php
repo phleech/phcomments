@@ -254,6 +254,6 @@ final class ParserTest extends TestCase
         $parser->randomVideo();
 
         $this->assertEquals([$validComment], $parser->getComments(translateEmojis: true));
-				$this->assertEquals('https://www.pornhub.com/someRandomVideo', $parser->getPageUrl());
+        $this->assertEquals('https://www.pornhub.com/someRandomVideo', $parser->getPageUrl());
     }
 }
