@@ -15,7 +15,7 @@ use Symfony\Component\DomCrawler\Crawler;
 
 final class ParserTest extends TestCase
 {
-    public function testParserCallsCorrectPageMethodWhenRandomVideoMethodIsCalled(): void
+    public function test_parser_calls_correct_page_method_when_random_video_method_is_called(): void
     {
         $page = $this->createMock(Page::class);
         $page->expects($this->once())->method('randomVideo');
@@ -23,13 +23,13 @@ final class ParserTest extends TestCase
         $parser->randomVideo();
     }
 
-    public function testRandomVideoMethodReturnsSelf(): void
+    public function test_random_video_method_returns_self(): void
     {
-        $parser = new Parser();
+        $parser = new Parser;
         $this->assertInstanceOf(Parser::class, $parser->randomVideo());
     }
 
-    public function testParserCallsCorrectPageMethodWhenSetViewKeyMethodIsCalled(): void
+    public function test_parser_calls_correct_page_method_when_set_view_key_method_is_called(): void
     {
         $viewKey = 'abcdef1234567890';
         $page = $this->createMock(Page::class);
@@ -38,13 +38,13 @@ final class ParserTest extends TestCase
         $parser->setViewKey($viewKey);
     }
 
-    public function testSetViewKeyMethodReturnsSelf(): void
+    public function test_set_view_key_method_returns_self(): void
     {
-        $parser = new Parser();
+        $parser = new Parser;
         $this->assertInstanceOf(Parser::class, $parser->setViewKey(viewKey: 'abcdef1234567890'));
     }
 
-    public function testParserCallsCorrectPageMethodWhenSetPageUrlMethodIsCalled(): void
+    public function test_parser_calls_correct_page_method_when_set_page_url_method_is_called(): void
     {
         $url = 'this/is/a/url.php?foo=bar';
         $page = $this->createMock(Page::class);
@@ -53,9 +53,9 @@ final class ParserTest extends TestCase
         $parser->setPageUrl($url);
     }
 
-    public function testSetPageUrlMethodReturnsSelf(): void
+    public function test_set_page_url_method_returns_self(): void
     {
-        $parser = new Parser();
+        $parser = new Parser;
         $this->assertInstanceOf(Parser::class, $parser->setPageUrl(url: 'this/is/a/url.php?foo=bar'));
     }
 
@@ -104,7 +104,7 @@ final class ParserTest extends TestCase
 
     }
 
-    public function testGetCommentsDefaultsToCallingParseFirst(): void
+    public function test_get_comments_defaults_to_calling_parse_first(): void
     {
         $comments = [
             new Comment(
@@ -126,7 +126,7 @@ final class ParserTest extends TestCase
         $this->assertEquals($comments, $parser->getComments());
     }
 
-    public function testParseIsNotCalledWhenParseFalseIsPassedIntoGetComments(): void
+    public function test_parse_is_not_called_when_parse_false_is_passed_into_get_comments(): void
     {
         $comments = [
             new Comment(
@@ -148,7 +148,7 @@ final class ParserTest extends TestCase
         $this->assertEmpty($parser->getComments(parse: false));
     }
 
-    public function testOnlyCommentsWithBodiesLargerThanMaxCommentBodyLengthAreRemoved(): void
+    public function test_only_comments_with_bodies_larger_than_max_comment_body_length_are_removed(): void
     {
         $invalidComment = new Comment(
             body: 'This body length is too large',
@@ -174,14 +174,14 @@ final class ParserTest extends TestCase
         $this->assertEquals([$validComment], $parser->getComments());
     }
 
-    public function testDefaultMaxCommentBodyLengthIsUsedIfNoneIsSuppliedToParserConstructor(): void
+    public function test_default_max_comment_body_length_is_used_if_none_is_supplied_to_parser_constructor(): void
     {
-        $parser = new Parser();
+        $parser = new Parser;
 
         $this->assertEquals(200, $parser->maxCommentBodyLength);
     }
 
-    public function testOnlyCommentsWithAuthorsLargerThanMaxCommentAuthorLengthAreRemoved(): void
+    public function test_only_comments_with_authors_larger_than_max_comment_author_length_are_removed(): void
     {
         $invalidComment = new Comment(
             body: 'This is a body',
@@ -207,18 +207,18 @@ final class ParserTest extends TestCase
         $this->assertEquals([$validComment], $parser->getComments());
     }
 
-    public function testDefaultMaxCommentAuthorLengthIsUsedIfNoneIsSuppliedToParserConstructor(): void
+    public function test_default_max_comment_author_length_is_used_if_none_is_supplied_to_parser_constructor(): void
     {
-        $parser = new Parser();
+        $parser = new Parser;
 
         $this->assertEquals(15, $parser->maxCommentAuthorLength);
     }
 
-    public function testAgeDisclaimerCookieIsPresentOnRequest(): void
+    public function test_age_disclaimer_cookie_is_present_on_request(): void
     {
-        $cookieJar = new CookieJar();
+        $cookieJar = new CookieJar;
         $httpBrowser = $this->createStub(HttpBrowser::class);
-        $httpBrowser->method('request')->willReturn(new Crawler());
+        $httpBrowser->method('request')->willReturn(new Crawler);
         $httpBrowser->method('getCookieJar')->willReturn($cookieJar);
 
         $parser = new Parser(httpBrowser: $httpBrowser);

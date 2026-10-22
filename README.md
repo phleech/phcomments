@@ -75,5 +75,5 @@ The package has 100% code coverage.
 To run the test suite run
 
 ```bash
-./run-tests.sh
+./qa.sh
 ```

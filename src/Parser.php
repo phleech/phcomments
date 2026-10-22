@@ -27,10 +27,9 @@ class Parser
     public function __construct(
         public readonly int $maxCommentBodyLength = Comment::DEFAULT_MAX_BODY_LENGTH,
         public readonly int $maxCommentAuthorLength = Comment::DEFAULT_MAX_AUTHOR_LENGTH,
-        private HttpBrowser $httpBrowser = new HttpBrowser(),
-        private Page $page = new Page()
-    ) {
-    }
+        private HttpBrowser $httpBrowser = new HttpBrowser,
+        private Page $page = new Page
+    ) {}
 
     public function randomVideo(): self
     {

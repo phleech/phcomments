@@ -14,9 +14,7 @@ class Page
 
     private const URL_VIEWKEY = 'view_video.php?viewkey=';
 
-    public function __construct(private string $basePath = self::DEFAULT_BASE_PATH)
-    {
-    }
+    public function __construct(private string $basePath = self::DEFAULT_BASE_PATH) {}
 
     public function setViewKey(string $viewKey): void
     {

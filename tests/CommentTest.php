@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class CommentTest extends TestCase
 {
-    public function testProvidedBodyAttributeIsPresentInJsonSerialize(): void
+    public function test_provided_body_attribute_is_present_in_json_serialize(): void
     {
         $body = 'This is a body';
         $comment = new Comment(body: $body);
@@ -18,15 +18,15 @@ final class CommentTest extends TestCase
         $this->assertEquals($body, $serialized['body']);
     }
 
-    public function testDefaultBodyAttributeIsPresentInJsonSerialize(): void
+    public function test_default_body_attribute_is_present_in_json_serialize(): void
     {
-        $comment = new Comment();
+        $comment = new Comment;
         $serialized = $comment->jsonSerialize();
         $this->assertArrayHasKey('body', $serialized);
         $this->assertEquals('', $serialized['body']);
     }
 
-    public function testProvidedTimestampAttributeIsPresentInJsonSerialize(): void
+    public function test_provided_timestamp_attribute_is_present_in_json_serialize(): void
     {
         $timestamp = 'This is a timestamp';
         $comment = new Comment(timestamp: $timestamp);
@@ -35,15 +35,15 @@ final class CommentTest extends TestCase
         $this->assertEquals($timestamp, $serialized['timestamp']);
     }
 
-    public function testDefaultTimestampAttributeIsPresentInJsonSerialize(): void
+    public function test_default_timestamp_attribute_is_present_in_json_serialize(): void
     {
-        $comment = new Comment();
+        $comment = new Comment;
         $serialized = $comment->jsonSerialize();
         $this->assertArrayHasKey('timestamp', $serialized);
         $this->assertEquals('', $serialized['timestamp']);
     }
 
-    public function testProvidedAuthorAttributeIsPresentInJsonSerialize(): void
+    public function test_provided_author_attribute_is_present_in_json_serialize(): void
     {
         $author = 'This is an author';
         $comment = new Comment(author: $author);
@@ -52,15 +52,15 @@ final class CommentTest extends TestCase
         $this->assertEquals($author, $serialized['author']);
     }
 
-    public function testDefaultAuthorAttributeIsPresentInJsonSerialize(): void
+    public function test_default_author_attribute_is_present_in_json_serialize(): void
     {
-        $comment = new Comment();
+        $comment = new Comment;
         $serialized = $comment->jsonSerialize();
         $this->assertArrayHasKey('author', $serialized);
         $this->assertEquals('', $serialized['author']);
     }
 
-    public function testProvidedVotesAttributeIsPresentInJsonSerialize(): void
+    public function test_provided_votes_attribute_is_present_in_json_serialize(): void
     {
         $votes = 'This is a vote';
         $comment = new Comment(votes: $votes);
@@ -69,22 +69,22 @@ final class CommentTest extends TestCase
         $this->assertEquals($votes, $serialized['votes']);
     }
 
-    public function testDefaultVotesAttributeIsPresentInJsonSerialize(): void
+    public function test_default_votes_attribute_is_present_in_json_serialize(): void
     {
-        $comment = new Comment();
+        $comment = new Comment;
         $serialized = $comment->jsonSerialize();
         $this->assertArrayHasKey('votes', $serialized);
         $this->assertEquals('', $serialized['votes']);
     }
 
-    public function testProvidedBodyAttributeIsUsed(): void
+    public function test_provided_body_attribute_is_used(): void
     {
         $body = 'This is a body';
         $comment = new Comment(body: $body);
         $this->assertEquals($body, $comment->body);
     }
 
-    public function testProvidedAuthorAttributeIsUsed(): void
+    public function test_provided_author_attribute_is_used(): void
     {
         $author = 'This is an author';
         $comment = new Comment(author: $author);

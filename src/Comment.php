@@ -15,8 +15,7 @@ class Comment implements JsonSerializable
         public readonly string $timestamp = '',
         public readonly string $author = '',
         public readonly string $votes = '',
-    ) {
-    }
+    ) {}
 
     public function jsonSerialize(): mixed
     {
