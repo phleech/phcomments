@@ -2,9 +2,13 @@
 
 namespace PHComments;
 
+use Exception;
+use PHComments\Proxy\Proxy;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class Parser
 {
@@ -22,14 +26,64 @@ class Parser
 
     public const COOKIE_AGE_DISCLAIMER_VALUE = '1';
 
+    private HttpBrowser $httpBrowser;
+
     private array $comments = [];
 
     public function __construct(
         public readonly int $maxCommentBodyLength = Comment::DEFAULT_MAX_BODY_LENGTH,
         public readonly int $maxCommentAuthorLength = Comment::DEFAULT_MAX_AUTHOR_LENGTH,
-        private HttpBrowser $httpBrowser = new HttpBrowser,
+        ?HttpBrowser $httpBrowser = null,
         private Page $page = new Page
-    ) {}
+    ) {
+        $this->httpBrowser = $httpBrowser ?? new HttpBrowser($this->getClient());
+    }
+
+    private function getClient(): HttpClientInterface
+    {
+        $proxies = $this->getProxies();
+
+        if (empty($proxies)) {
+            throw new Exception('Failed to retrieve any available proxies, has the schema changed?');
+        }
+
+        foreach ($proxies as $proxy) {
+            if ($proxy->isWorking()) {
+                return HttpClient::create([
+                    'proxy' => $proxy->proxy,
+                    'extra' => [
+                        'curl' => [
+                            \CURLOPT_PROXY_SSL_VERIFYPEER => 0,
+                            \CURLOPT_PROXY_SSL_VERIFYHOST => 0,
+                        ],
+                    ],
+                    'timeout' => 10,
+                ]);
+            }
+        }
+
+        throw new Exception('Failed to retreive a working proxy, are the restricted regions correct?');
+    }
+
+    private function getProxies(): array
+    {
+        $client = HttpClient::create();
+        $response = $client->request('GET', Proxy::URL);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new Exception('Failed to retreive any proxies, has the URL changed?');
+        }
+
+        $proxies = array_map(
+            Proxy::fromArray(...),
+            $response->toArray()
+        );
+
+        return array_filter(
+            $proxies,
+            fn (Proxy $proxy) => $proxy->isUnrestricted()
+        );
+    }
 
     public function randomVideo(): self
     {
