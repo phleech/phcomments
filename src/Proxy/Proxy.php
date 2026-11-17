@@ -51,7 +51,7 @@ readonly class Proxy
 
     public function isWorking(): bool
     {
-        $client = HttpClient::create([
+        $proxyClient = HttpClient::create([
             'proxy' => $this->proxy,
             'extra' => [
                 'curl' => [
@@ -62,9 +62,11 @@ readonly class Proxy
             'timeout' => 10,
         ]);
 
+        $nativeClient = HttpClient::create(['timeout' => 10]);
+
         try {
-            return $this->ip === $client->request('GET', 'https://api.ipify.org')->getContent();
-        } catch (Exception) {
+            return $proxyClient->request('GET', 'https://api.ipify.org')->getContent() !== $nativeClient->request('GET', 'https://api.ipify.org')->getContent();
+        } catch (Exception $e) {
         }
 
         return false;
